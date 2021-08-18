@@ -1,4 +1,4 @@
-import { dbService } from 'myBase';
+import { dbService, storageService } from 'myBase';
 import React, { useState } from 'react';
 
 const Nweet = ({ nweetObj, isOwner }) => {
@@ -8,6 +8,9 @@ const Nweet = ({ nweetObj, isOwner }) => {
     const ok = window.confirm("Are you sure you want to delete this nweet?");
     if (ok) {
       await dbService.doc(`nweets/${nweetObj.id}`).delete();
+      if (nweetObj.attachmentUrl !== "") {
+        await storageService.refFromURL(nweetObj.attachmentUrl).delete();
+      }
     }
   };
   const toggleEditing = () => setEditing((prev) => !prev);
@@ -29,21 +32,31 @@ const Nweet = ({ nweetObj, isOwner }) => {
     <div>
       {editing ? (
         <>
-          <form onSubmit={onSubmit}>
-            <input 
-              onChange={onChange}
-              type='text' 
-              placeholder='Edit your nweet' 
-              value={newNweet} 
-              required 
-            />
-            <input type="submit" value="Update Nweet" />
-          </form>
-          <button onClick={toggleEditing}>Cancel</button>
+          {isOwner && (
+            <>          
+              <form onSubmit={onSubmit}>
+                <input 
+                  onChange={onChange}
+                  type='text' 
+                  placeholder='Edit your nweet' 
+                  value={newNweet} 
+                  required 
+                />
+                <input type="submit" value="Update Nweet" />
+              </form>
+              <button onClick={toggleEditing}>Cancel</button>
+            </>
+          )}
         </>
       ) : (
         <>
           <h4>{nweetObj.text}</h4>
+          {nweetObj.attachmentUrl && (
+            <img src={nweetObj.attachmentUrl} 
+              width="50px" 
+              height="50px" 
+            />
+          )}
           {isOwner && (
             <>
               <button onClick={onDeleteClick} >Delete Nweet</button>
