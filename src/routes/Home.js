@@ -9,7 +9,9 @@ const Home = ({ userObj }) => {
   const [attachment, setAttachment] = useState("");
 
   useEffect(() => {
-    dbService.collection("nweets").orderBy("createdAt","desc").onSnapshot((snapshot) => {
+    dbService.collection("nweets")
+      .orderBy("createdAt","desc")
+      .onSnapshot((snapshot) => {
       const nweetArr = snapshot.docs.map((doc) => ({
         id:doc.id,
         ...doc.data(),
